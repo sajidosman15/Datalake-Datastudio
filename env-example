@@ -1,0 +1,8 @@
+###############################################
+# NiFi Properties
+###############################################
+NIFI_BASE_URL = "test"
+PROCESS_GROUP_ID = "test"
+SQL_TEMPLATE_ID = "test"
+NIFI_USERNAME = "test"  
+NIFI_PASSWORD = "test"

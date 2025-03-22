@@ -1,0 +1,127 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+[data-testid="stMainBlockContainer"] [data-testid="stHeadingWithActionElements"]{
+    margin-top: -25px;
+    padding-bottom: 20px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"]{
+    border-radius: 10px;
+    border: 1px solid #DAD9DC;
+    border-bottom: 1px solid white;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    margin-bottom: 5px;
+}
+
+.table-title {
+    height: 50px;
+    padding: 15px 30px;
+    font-family: Lato !important;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"]{
+    display: flex;
+    justify-content: flex-end;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button{
+    min-height: 30px !important;
+    height: 30px !important;
+    margin: 9px 9px;
+    border-radius: 5px;
+    background-color: #DA291C;
+    color: white;
+    border: none;
+    padding: 0px 15px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button:hover{
+    background-color: rgb(192, 25, 13);
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button:focus:not(:active){
+    color: white;
+    background-color: #DA291C;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button div p{
+    font-family: Oswald !important;
+    padding-bottom: 2px;
+    font-size: 14px;
+}
+
+[data-testid="stVerticalBlock"]{
+    gap: unset !important;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"]{
+    border: none;
+    gap: unset;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"]{
+    gap: unset;
+    background-color: #F6F8FA;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stElementContainer"]{
+    border-bottom: 1px solid #DAD9DC;
+    border-top: 1px solid #DAD9DC;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"]{
+    background-color: #FFFFFF;
+    align-items: center;
+    gap: unset;
+    padding: 4px 0px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"]{
+    background-color: #FFFFFF;
+    border-radius: 0px;
+    margin: 0px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stElementContainer"]{
+    border: none;
+    height: 40px;
+    border-bottom: 1px solid #DAD9DC;
+    background-color: #FFFFFF;
+    padding-top: 4px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stElementContainer"] p{
+    font-family: Lato !important;
+    font-size: 14px;
+    background-color: #FFFFFF;
+    margin-bottom: 0px;
+}
+
+[data-testid="stHorizontalBlock"] :nth-child(1) p{
+    padding-left: 30px;
+}
+
+[data-testid="stHorizontalBlock"] :nth-child(4) p{
+    color: #666
+}
+
+.badge{
+    margin-left: 20px;
+    padding: 0px 10px;
+    padding-top: 4px;
+    padding-bottom: 5px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}
+
+.badge.Loading { background-color: #d9534f; }
+.badge.Loaded { background-color: #5bc0de; }
+.badge.Storing { background-color: #f0ad4e; }
+.badge.Stored { background-color: #5bdec4; }

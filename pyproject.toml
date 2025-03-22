@@ -1,0 +1,22 @@
+[project]
+name = "TechHub_Data_Studio"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Sajid Osman",email = "sajid.osman@savethechildren.org"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit (>=1.43.2,<2.0.0)",
+    "structlog (>=25.2.0,<26.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+[tool.poetry]
+packages = []
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
