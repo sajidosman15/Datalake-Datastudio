@@ -1,6 +1,7 @@
 import requests
 import time 
 import os
+import json
 
 from structlog import get_logger
 from dotenv import load_dotenv
@@ -76,7 +77,7 @@ def enable_controller_services(token, process_group_id):
     else:
         logger.error(f"Failed to fetch controller services: {response.text}")
 
-def instantiate_flow(db_url,db_name,db_username,db_password):
+def instantiate_flow(db_url,db_name,db_username,db_password,selected):
     token = get_nifi_token()
     headers = {
         "Authorization": f"Bearer {token}",
@@ -108,6 +109,8 @@ def instantiate_flow(db_url,db_name,db_username,db_password):
         var_registry = var_response.json()
         var_revision = var_registry["processGroupRevision"]
 
+        selected = json.dumps(selected)
+
         # Update Variables
         update_payload = {
             "processGroupRevision": var_revision,
@@ -116,7 +119,8 @@ def instantiate_flow(db_url,db_name,db_username,db_password):
                     {"variable": {"name": "DB", "value": db_url}},
                     {"variable": {"name": "DB_NAME", "value": db_name}},
                     {"variable": {"name": "USER", "value": db_username}},
-                    {"variable": {"name": "PASS", "value": db_password}}
+                    {"variable": {"name": "PASS", "value": db_password}},
+                    {"variable": {"name": "TABLES", "value": selected}}
                 ],
                 "processGroupId" : var_registry["variableRegistry"]['processGroupId']
             }

@@ -10,10 +10,7 @@
 [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"]{
     border-radius: 10px;
     border: 1px solid #DAD9DC;
-    border-bottom: 1px solid white;
-    border-bottom-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 
 .table-title {
@@ -110,6 +107,19 @@
     color: #666
 }
 
+.state_container{
+    margin-left: 10px;
+}
+
+.state_container .badge{
+    margin-left: 15px;
+}
+
+.loading_image{
+    width:20px;
+    height:20px
+}
+
 .badge{
     margin-left: 20px;
     padding: 0px 10px;
@@ -125,3 +135,35 @@
 .badge.Loaded { background-color: #5bc0de; }
 .badge.Storing { background-color: #f0ad4e; }
 .badge.Stored { background-color: #5bdec4; }
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stColumn"] [data-testid="stElementContainer"] {
+    display: flex;
+    justify-content: center;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stColumn"] [data-testid="stButton"] {
+    display: flex;
+    justify-content: center;
+    margin-right: 9px;
+}
+
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stColumn"] [data-testid="stButton"] button{
+    min-height: 30px !important;
+    height: 30px !important;
+    margin: 0px 0px;
+    margin-top:-6px;
+    border-radius: 5px;
+    background-color: white;
+    color: white;
+    border: none;
+    padding: 0px 15px;
+    width: 17px;
+    border: 1px solid #DAD9DC;
+    color: #111;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] [data-testid="stColumn"] [data-testid="stButton"] button:hover{
+    background-color:#DA291C;
+    color: white;
+}

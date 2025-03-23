@@ -1,0 +1,113 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+[data-testid="stMainBlockContainer"] [data-testid="stHeadingWithActionElements"]{
+    margin-top: -25px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stHeadingWithActionElements"] h1{
+    padding-top: 0px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"]{
+    display: flex;
+    justify-content: center;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button{
+    min-height: 35px !important;
+    height: 35px !important;
+    margin: 9px 0px;
+    border-radius: 5px;
+    background-color: #DA291C;
+    color: white;
+    border: none;
+    padding: 0px 15px;
+    width: 90px;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button:hover{
+    background-color: rgb(192, 25, 13);
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button:focus:not(:active){
+    color: white;
+    background-color: #DA291C;
+}
+
+[data-testid="stMainBlockContainer"] [data-testid="stButton"] button div p{
+    font-family: Oswald !important;
+    padding-bottom: 2px;
+    font-size: 14px;
+}
+
+[data-testid="stDialog"] div div :nth-child(1){
+    font-family: Oswald !important;
+    color:  #DA291C;
+    margin-left: 55px !important;
+}
+[data-testid="stDialog"] div div :nth-child(3) svg path{
+    color: black !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(3) svg{
+    margin-left: 0px !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) {
+    margin-left: 0px !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div{
+    margin-left: 0px !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div label{
+    margin-left: 10px !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div label span{
+    margin-left: 0px !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div label div p{
+    margin-left: 10px !important;
+    color: rgb(49, 51, 63) !important;
+    font-family: Lato !important;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div [data-testid="stButton"]{
+    display: flex;
+    justify-content: center;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div button{
+    margin-left: 0px !important;
+    min-height: 35px !important;
+    height: 35px !important;
+    border-radius: 5px;
+    background-color: #DA291C;
+    color: white;
+    border: none;
+    padding: 0px 15px;
+    width: 90px;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div button p{
+    margin-left: 0px !important;
+    color: white;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div button:hover{
+    background-color: rgb(192, 25, 13);
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div button:focus:not(:active){
+    color: white;
+    background-color: #DA291C;
+}
+
+[data-testid="stDialog"] div div :nth-child(2) div button div p{
+    font-family: Oswald !important;
+    padding-bottom: 2px;
+    font-size: 14px;
+}

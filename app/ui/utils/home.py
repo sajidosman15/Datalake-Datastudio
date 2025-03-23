@@ -3,6 +3,7 @@ from structlog import get_logger
 
 from app.ui.utils.connections import connections
 from app.ui.utils.data_explorer import data_explorer
+from app.ui.utils.connect_source import connect_source
 
 logger = get_logger()
 
@@ -13,7 +14,7 @@ async def home() -> None:
 
     # Initialize menu item if not present in session state
     if "menu_item" not in st.session_state:
-        st.session_state.menu_item = "connections"
+        st.session_state.menu_item = "connect_source"
 
     # Render left sidebar
     with st.sidebar:
@@ -30,6 +31,7 @@ async def home() -> None:
     menu_functions = {
         "connections": connections,
         "data_explorer": data_explorer,
+        "connect_source" : connect_source
     }
     
     if st.session_state.menu_item in menu_functions:
