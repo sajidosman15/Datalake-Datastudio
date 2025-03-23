@@ -1,7 +1,9 @@
 import pyodbc
 
-# Function to get table names from SQL Server
 def get_sql_server_table_names(db_url, db_name, db_username, db_password):
+    """
+        Retrieve all table names from the SQL Server.
+    """
     try:
         # Construct the connection string
         conn_str = f"DRIVER={{SQL Server}};SERVER={db_url};DATABASE={db_name};UID={db_username};PWD={db_password}"

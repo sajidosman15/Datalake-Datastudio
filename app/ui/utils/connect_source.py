@@ -11,14 +11,15 @@ def open_sql_server_popup(source_name, db_url, db_name, db_username, db_password
             selected_tables[table] = st.checkbox(table)
 
         if st.button("Submit"):
-            selected = [table for table, checked in selected_tables.items() if checked]
+            tables = [table for table, checked in selected_tables.items() if checked]
             
-            if selected:
-                st.success(f"Selected tables: {', '.join(selected)}")
-                instantiate_flow(db_url,db_name,db_username,db_password,selected)
+            if tables:
+                st.success(f"Selected tables: {', '.join(tables)}")
+                instantiate_flow(db_url,db_name,db_username,db_password,tables)
             else:
-                st.toast("⛔ No tables selected.")
+                st.error("⛔ Please select tables from the list.")
     else:
+        # Task: Check Error or Empty Database
         st.write("Failed to Connect the Source")
 
 async def connect_source() -> None:
