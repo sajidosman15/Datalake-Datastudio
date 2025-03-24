@@ -28,7 +28,7 @@ async def connect_source() -> None:
 
     st.title("Connect New Data Source")
 
-    source_name = st.text_input("Data Source Name *", help="Give a name of your data source.")
+    source_name = st.text_input("Data Source Name *", help="Give a name of your data source.", max_chars=40)
 
     source_lists = ["Microsoft SQL Server"]
     source_type = st.selectbox(label="Data Source Type *", options=source_lists, help="Select the data source.")
