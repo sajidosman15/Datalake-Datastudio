@@ -132,29 +132,28 @@ def get_controller_services_of_template(headers, process_group_id):
     
     if response.status_code == 200:
         services = response.json()["controllerServices"]
+        filtered_services = [svc for svc in services if svc.get("parentGroupId") == process_group_id]
         logger.info("Successfully feached all controller services.")
-        return services
+        return filtered_services
     else:
         logger.error(f"Failed to fetch controller services: {response.text}")
         return None
 
-# Function to enable all controller services in the new process group
 def enable_controller_services_of_template(headers, process_group_id):
     """
         Enable all the services within the template.
     """
     services = get_controller_services_of_template(headers, process_group_id)
-    # Error: This should only fetch the services of the current template not all
 
     if services:
         all_service_is_enabled = True
         for service in services:
             service_id = service["id"]
             service_state = service["component"]["state"]
+            service_type = service["component"].get("type")
             properties = service["component"].get("properties", {})
 
-            # Error: This should only set the password of the Database connection pool, not all.
-            if "Password" in properties:
+            if service_type == "org.apache.nifi.dbcp.DBCPConnectionPool":
                 properties["Password"] = "${PASS}"
 
             # Enable only if it's DISABLED
