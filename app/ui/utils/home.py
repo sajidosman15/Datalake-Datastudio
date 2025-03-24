@@ -14,7 +14,7 @@ async def home() -> None:
 
     # Initialize menu item if not present in session state
     if "menu_item" not in st.session_state:
-        st.session_state.menu_item = "connections"
+        st.session_state.menu_item = "data_explorer"
 
     # Render left sidebar
     with st.sidebar:
