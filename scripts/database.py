@@ -1,10 +1,21 @@
+import os
 import psycopg2
 from psycopg2 import sql
 
+from dotenv import load_dotenv
 from structlog import get_logger
-from app.config import get_db_env
 
 logger = get_logger()
+load_dotenv()
+
+def get_db_env():
+    return {
+        "host": os.getenv("DATABASE_HOST"),
+        "user": os.getenv("DATABASE_USER"),
+        "password": os.getenv("DATABASE_PASSWORD"),
+        "dbname": os.getenv("DATABASE_NAME"),
+        "port": os.getenv("DATABASE_PORT"),
+    }
 
 def check_and_create_database():
     env = get_db_env()

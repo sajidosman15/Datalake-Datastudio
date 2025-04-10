@@ -18,7 +18,8 @@ def open_sql_server_popup(connection:Connection, sql_server:SQLServer):
             if tables:
                 sql_server.tables = tables
                 connection.connection_properties = sql_server.to_connection_properties()
-                start_flow = instantiate_flow(connection)
+                with st.spinner("Instantiating data flow... Please wait."):
+                    start_flow = instantiate_flow(connection)
                 if start_flow:
                     st.session_state.popupmsg = "✅ The Data Source Connected Successfully."
                 else:
