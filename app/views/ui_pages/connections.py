@@ -1,12 +1,19 @@
 import streamlit as st
 from structlog import get_logger
 
-from app.ui.helpers.helper import get_gif_image
+from app.views.helpers.helper import get_gif_image
 
 logger = get_logger()
 
 async def connections() -> None:
-    with open('app/ui/styles/connections.css') as f:
+    if "popup" not in st.session_state:
+        st.session_state.popup = False
+
+    if st.session_state.popup == True:
+        st.toast(st.session_state.popupmsg)
+        st.session_state.popup = False
+
+    with open('app/views/styles/connections.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True) 
 
     st.title("Connections List")
@@ -33,7 +40,7 @@ async def connections() -> None:
                 
                 with col2:
                     if item["state"] == "Loading" or item["state"] == "Storing":
-                        st.session_state["item"+item['id']] = f"<div class='state_container'> <img class='loading_image' src='{get_gif_image('app/ui/media/loader.gif')}'/> <span class='badge {item['state']}'>{item['state']}</span> </div>"
+                        st.session_state["item"+item['id']] = f"<div class='state_container'> <img class='loading_image' src='{get_gif_image('app/views/media/loader.gif')}'/> <span class='badge {item['state']}'>{item['state']}</span> </div>"
                     else:
                         st.session_state["item"+item['id']] = f"<span class='badge {item['state']}'>{item['state']}</span>"
 

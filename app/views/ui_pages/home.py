@@ -1,16 +1,16 @@
 import streamlit as st
 from structlog import get_logger
 
-from app.ui.utils.connections import connections
-from app.ui.utils.data_explorer import data_explorer
-from app.ui.utils.delta_storage import delta_storage
-from app.ui.utils.connect_source import connect_source
+from app.views.ui_pages.connections import connections
+from app.views.ui_pages.data_explorer import data_explorer
+from app.views.ui_pages.delta_storage import delta_storage
+from app.views.ui_pages.connect_source import connect_source
 
 logger = get_logger()
 
 async def home() -> None:
     # Initialize css styles
-    with open('app/ui/styles/home.css') as f:
+    with open('app/views/styles/home.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True) 
 
     # Initialize menu item if not present in session state

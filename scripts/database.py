@@ -1,21 +1,10 @@
-import os
 import psycopg2
 from psycopg2 import sql
 
 from structlog import get_logger
-from dotenv import load_dotenv
+from app.config import get_db_env
 
-load_dotenv()
 logger = get_logger()
-
-def get_db_env():
-    return {
-        "host": os.getenv("DATABASE_HOST"),
-        "user": os.getenv("DATABASE_USER"),
-        "password": os.getenv("DATABASE_PASSWORD"),
-        "dbname": os.getenv("DATABASE_NAME"),
-        "port": os.getenv("DATABASE_PORT"),
-    }
 
 def check_and_create_database():
     env = get_db_env()
@@ -48,6 +37,10 @@ def check_and_create_database():
             conn.close()
             return True
         except Exception as e:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
             logger.error(f"Error on creating database: {e}")
             return False
 
@@ -82,6 +75,10 @@ def create_connections_table():
         cur.close()
         conn.close()
     except Exception as e:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
         logger.error(f"Failed to create table 'Connections' : {e}")
 
 if __name__ == "__main__":
