@@ -1,6 +1,7 @@
 import time 
 import json
 import requests
+import threading
 
 from structlog import get_logger
 
@@ -223,7 +224,186 @@ def enable_controller_services_of_template(headers, process_group_id):
     except Exception as e:
         logger.error(f"Module:NiFiController. Failed to enable all controller services: {e}")
         return False
-    
+
+def stop_all_processors(headers, process_group_id):
+    """
+        Stop all running processors in the specified process group.
+    """
+    logger.info(f"Module:NiFiController. Stopping all processors for process group {process_group_id}.")
+    try:
+        processors_resp = requests.get(
+            f"{nifi_env['base_url']}/process-groups/{process_group_id}/processors",
+            headers=headers, verify=False
+        )
+
+        if processors_resp.status_code != 200:
+            logger.error(f"Module:NiFiController. Failed to retrieve processors: {processors_resp.text}")
+            return False
+
+        processors = processors_resp.json().get('processors', [])
+
+        for proc in processors:
+            proc_id = proc['component']['id']
+            revision = proc['revision']
+            current_state = proc['component'].get('state', '')
+
+            if current_state == "RUNNING":
+                stop_payload = {
+                    "revision": revision,
+                    "component": {
+                        "id": proc_id,
+                        "state": "STOPPED"
+                    }
+                }
+
+                stop_resp = requests.put(
+                    f"{nifi_env['base_url']}/processors/{proc_id}",
+                    headers=headers, json=stop_payload, verify=False
+                )
+
+                if stop_resp.status_code != 200:
+                    logger.error(f"Module:NiFiController. Failed to stop processor {proc_id}: {stop_resp.text}")
+                    return False
+
+        logger.info(f"Module:NiFiController. All processors stopped successfully.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Exception while stopping processors: {e}")
+        return False
+
+def stop_all_services(headers, process_group_id):
+    """
+        Disable all controller services in the specified process group.
+    """
+    logger.info(f"Module:NiFiController. Disabling all controller services for process group {process_group_id}.")
+    try:
+        services = get_controller_services_of_template(headers, process_group_id)
+
+        for service in services:
+            service_id = service["id"]
+            revision = service['revision']
+            body = {
+                "revision": revision,
+                "component": {
+                    "id": service_id,
+                    "state": "DISABLED"
+                }
+            }
+
+            update_response = requests.put(
+                f"{nifi_env['base_url']}/controller-services/{service_id}",
+                json=body, headers=headers, verify=False
+            )
+
+            if update_response.status_code != 200:
+                logger.error(f"Module:NiFiController. Failed to disable service {service_id}: {update_response.text}")
+                return False
+
+        logger.info(f"Module:NiFiController. All controller services disabled successfully.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Exception while disabling services: {e}")
+        return False
+
+def empty_all_queues(headers, process_group_id):
+    """
+        Drop all flowfiles from queues in the process group.
+    """
+    logger.info(f"Module:NiFiController. Emptying all queues for process group {process_group_id}.")
+    try:
+        connections_response = requests.get(
+            f"{nifi_env['base_url']}/process-groups/{process_group_id}/connections",
+            headers=headers, verify=False
+        )
+
+        if connections_response.status_code != 200:
+            logger.error(f"Module:NiFiController. Failed to retrieve connections: {connections_response.text}")
+            return False
+
+        connections = connections_response.json()['connections']
+        for conn in connections:
+            conn_id = conn['id']
+            drop_request = requests.post(
+                f"{nifi_env['base_url']}/flowfile-queues/{conn_id}/drop-requests",
+                headers=headers, verify=False
+            )
+
+            if drop_request.status_code != 202:
+                logger.error(f"Module:NiFiController. Failed to initiate drop request for connection {conn_id}: {drop_request.text}")
+                return False
+
+        logger.info(f"Module:NiFiController. All queues emptied successfully.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Exception while emptying queues: {e}")
+        return False
+
+def delete_process_group(headers, process_group_id):
+    """
+        Delete the process group.
+    """
+    logger.info(f"Module:NiFiController. Deleting process group {process_group_id}.")
+    try:
+        # Fetch current revision/version
+        get_response = requests.get(
+            f"{nifi_env['base_url']}/process-groups/{process_group_id}",
+            headers=headers, verify=False
+        )
+
+        if get_response.status_code != 200:
+            logger.error(f"Module:NiFiController. Failed to retrieve process group: {get_response.text}")
+            return False
+
+        revision = get_response.json()['revision']
+
+        delete_response = requests.delete(
+            f"{nifi_env['base_url']}/process-groups/{process_group_id}",
+            params={"version": revision['version']},
+            headers=headers, verify=False
+        )
+
+        if delete_response.status_code == 200:
+            logger.info(f"Module:NiFiController. Process group {process_group_id} deleted successfully.")
+            return True
+        else:
+            logger.error(f"Module:NiFiController. Failed to delete process group: {delete_response.text}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Exception while deleting process group: {e}")
+        return False
+
+def is_ingestion_complete(headers, process_group_id):
+    """
+        Check if ingestion is complete by verifying: All connections have zero flowfiles queued.
+    """
+    logger.info(f"Module:NiFiController. Checking if ingestion is complete for process group {process_group_id}.")
+    try:
+        status_resp = requests.get(
+            f"{nifi_env['base_url']}/flow/process-groups/{process_group_id}/status",
+            headers=headers, verify=False
+        )
+
+        if status_resp.status_code != 200:
+            logger.error(f"Module:NiFiController. Failed to get process group status: {status_resp.text}")
+            return False
+
+        status_snapshot = status_resp.json()['processGroupStatus']['aggregateSnapshot']
+        queued_count = status_snapshot.get('flowFilesQueued', "0")
+
+        if int(queued_count) > 0:
+            return False
+
+        logger.info(f"Module:NiFiController. Ingestion is complete for process group {process_group_id}.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Exception while checking ingestion status: {e}")
+        return False
+
 def start_the_process(headers, process_group_id):
     """
         Run all processors within the template.
@@ -244,6 +424,53 @@ def start_the_process(headers, process_group_id):
         logger.error(f"Module:NiFiController. Failed to start flow: {e}")
         return False
 
+def monitor_and_cleanup_process(headers, process_group_id, connection:Connection):
+    """
+        Continuously monitor the process, and automatically delete it once it completes successfully.
+    """
+    logger.info(f"Module:NiFiController. Started monitoring the process: {process_group_id}")
+    try:
+        while True:
+            if is_ingestion_complete(headers, process_group_id):
+                if stop_all_processors(headers, process_group_id):
+                    if stop_all_services(headers, process_group_id):
+                        if empty_all_queues(headers, process_group_id):
+                            if delete_process_group(headers, process_group_id):
+                                # Update database record
+                                connection.update_state("Loaded")
+                                logger.info(f"Module:NiFiController. NiFi flow {process_group_id} completed and cleaned up.")
+                                break
+                            else:
+                                break
+                        else:
+                            break
+                    else:
+                        break
+                else:
+                    break
+            time.sleep(10)  # Polling interval
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Error in background cleanup task: {str(e)}")
+
+def remove_failed_template(headers, process_group_id, stage):
+    """
+        Remove the failed template from the workspace based on the error stage.
+    """
+    logger.info(f"Module:NiFiController. Started removing the faulty process: {process_group_id}")
+    try:
+        if stage > 2:
+            stop_all_processors(headers, process_group_id)
+        if stage > 1:
+            stop_all_services(headers, process_group_id)
+            empty_all_queues(headers, process_group_id)
+
+        deleted = delete_process_group(headers, process_group_id)
+        if deleted:
+            logger.info(f"Module:NiFiController. NiFi flow {process_group_id} deleted successfully.")
+
+    except Exception as e:
+        logger.error(f"Module:NiFiController. Error in removing the faulty process: {str(e)}")
+
 def instantiate_flow(connection:Connection):
     token = get_nifi_token()
     headers = get_request_headers(token)
@@ -259,17 +486,37 @@ def instantiate_flow(connection:Connection):
                     if all_service_is_enabled:
                         process_started = start_the_process(headers, process_group_id)
                         if process_started:
-                            #Task: Run background process to check the ingestion complete then update the database and delete the flow
-
                             connection.nifi_process_id = process_group_id
                             connection.state = "Loading"
-                            inserted_id = connection.save()
-                            if inserted_id:
+                            new_conn = connection.save()
+                            if new_conn:
+                                threading.Thread(
+                                    target=monitor_and_cleanup_process,
+                                    args=(headers, process_group_id, new_conn),
+                                    daemon=True
+                                ).start()
                                 return True
                             else:
+                                remove_failed_template(headers, process_group_id, stage=3)
                                 return False
+                        else:
+                            remove_failed_template(headers, process_group_id, stage=2)
+                            return False
                     else:
                         logger.error(f"Failed to start flow because all controller is not enabled.")
+                        remove_failed_template(headers, process_group_id, stage=2)
                         return False
+                else:
+                    remove_failed_template(headers, process_group_id, stage=1)
+                    return False
+            else:
+                remove_failed_template(headers, process_group_id, stage=1)
+                return False
+        else:
+            remove_failed_template(headers, process_group_id, stage=1)
+            return False
+    else:
+        remove_failed_template(headers, process_group_id, stage=1)
+        return False
                     
 

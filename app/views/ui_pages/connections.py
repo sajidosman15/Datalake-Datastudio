@@ -3,6 +3,8 @@ from structlog import get_logger
 
 from app.views.helpers.helper import get_gif_image
 
+from app.models.connection import Connection
+
 logger = get_logger()
 
 async def connections() -> None:
@@ -18,12 +20,7 @@ async def connections() -> None:
 
     st.title("Connections List")
 
-    data = [
-        {"id": "#8793", "state": "Loading", "name": "Suchana Nutrition Data", "date": "3 Jan, 4:35 PM"},
-        {"id": "#3452", "state": "Loaded", "name": "PMT Client Data", "date": "4 Feb, 2:35 PM"},
-        {"id": "#6453", "state": "Storing", "name": "Prime Health Indicators", "date": "17 Jan, 4:56 PM"},
-        {"id": "#7456", "state": "Stored", "name": "SQL Server Management Data", "date": "29 Dec, 4:35 PM"},
-    ]
+    data = Connection.list_all()
 
     with st.container():
         st.markdown(f"""<p class="table-title">My Data Sources</p>""", unsafe_allow_html=True)
@@ -47,10 +44,10 @@ async def connections() -> None:
                     st.markdown(st.session_state["item"+item['id']], unsafe_allow_html=True)
                 
                 with col3:
-                    st.markdown(f"**{item['name']}**")
+                    st.markdown(f"**{item['connection_name']}**")
                 
                 with col4:
-                    st.markdown(f"<span class='date'>{item['date']}</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span class='date'>{item['create_date']}</span>", unsafe_allow_html=True)
 
                 with col5:
                     left, middle, right = st.columns(3)

@@ -12,7 +12,7 @@
             "module": "streamlit",
             "args": [
                 "run", 
-                "app/ui/ui.py"
+                "app/views/ui.py"
             ],
             "console": "integratedTerminal"
         }
