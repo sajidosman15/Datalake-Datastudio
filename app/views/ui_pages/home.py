@@ -13,6 +13,14 @@ async def home() -> None:
     with open('app/views/styles/home.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True) 
 
+    # Initialize the popup message
+    if "popup" not in st.session_state:
+        st.session_state.popup = False
+
+    if st.session_state.popup == True:
+        st.toast(st.session_state.popupmsg)
+        st.session_state.popup = False
+
     # Initialize menu item if not present in session state
     if "menu_item" not in st.session_state:
         st.session_state.menu_item = "connections"

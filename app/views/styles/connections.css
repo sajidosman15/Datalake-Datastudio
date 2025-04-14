@@ -167,3 +167,58 @@
     background-color:#DA291C;
     color: white;
 }
+
+
+[data-testid="stDialog"] div div :nth-child(1){
+    font-family: Oswald !important;
+    color:  #DA291C;
+    justify-content: center;
+}
+
+[data-testid="stDialog"] [data-testid="stMarkdownContainer"] p{
+    color:  #111111 !important;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"]{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] [data-testid="stColumn"]{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 1 calc(40% - 1rem);
+}
+
+[data-testid="stDialog"] button [data-testid="stMarkdownContainer"] p{
+    color:  white !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] :nth-child(1) button{
+    background-color: #0FC4B2;
+    border: none;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] :nth-child(1) button:hover{
+    background-color: #0eb6a6;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] :nth-child(2) button{
+    background-color: #DA291C;
+    border: none;
+}
+
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] :nth-child(2) button:hover{
+    background-color: #be2419;
+}

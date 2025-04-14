@@ -20,6 +20,17 @@ class Connection:
     nifi_process_id: Optional[str] = None
     create_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
+    @staticmethod
+    def return_connection(record : Dict[str, str]):
+        return Connection (
+                    id = str(record["id"]),
+                    connection_name = record["connection_name"],
+                    source_type = record["source_type"],
+                    state = record["state"],
+                    nifi_process_id = record["nifi_process_id"],
+                    create_date = record["create_date"].strftime("%d %b %Y, %H:%M %p")
+                )
+
     def save(self):
         """
         Inserts data into the Connections table.
@@ -85,7 +96,7 @@ class Connection:
             with conn.cursor() as cursor:
                 select_query = """
                     SELECT 
-                        id, connection_name, source_type, connection_properties, state, nifi_process_id, create_date
+                        id, connection_name, source_type, state, connection_properties, nifi_process_id, create_date
                     FROM Connections;
                 """
                 cursor.execute(select_query)
@@ -95,10 +106,7 @@ class Connection:
                 results = []
                 for row in rows:
                     record = dict(zip(columns, row))
-                    record["id"] = str(record["id"])
-                    if record["create_date"]:
-                        record["create_date"] = record["create_date"].strftime("%d %b %Y, %H:%M %p")
-                    results.append(record)
+                    results.append(Connection.return_connection(record))
 
                 logger.info(f"Module:ConnectionModels. Retrieved {len(results)} record(s) from Connection table.")
                 return results
@@ -152,6 +160,44 @@ class Connection:
                 cursor.close()
             if 'conn' in locals() and conn:
                 conn.close()
+
+    def delete(self) -> bool:
+        """
+        Deletes the connection record from the database.
+
+        Returns:
+        - bool: True if the deletion was successful, False otherwise
+        """
+        logger.info(f"Module:ConnectionModels. Attempting to delete Connection ID {self.id}.")
+        env = get_db_env()
+        try:
+            conn = psycopg2.connect(
+                dbname=env["dbname"], host=env["host"], user=env["user"], 
+                password=env["password"], port=env["port"]
+            )
+            with conn.cursor() as cursor:
+                delete_query = """
+                    DELETE FROM Connections
+                    WHERE id = %s;
+                """
+                cursor.execute(delete_query, (self.id,))
+                if cursor.rowcount == 0:
+                    logger.warning(f"Module:ConnectionModels. No records deleted. ID {self.id} may not exist.")
+                    return False
+
+                conn.commit()
+                logger.info(f"Module:ConnectionModels. Connection ID {self.id} deleted successfully.")
+                return True
+
+        except Exception as e:
+            logger.error(f"Module:ConnectionModels. Failed to delete Connection ID {self.id}: {e}")
+            return False
+        finally:
+            if 'cursor' in locals() and cursor:
+                cursor.close()
+            if 'conn' in locals() and conn:
+                conn.close()
+
 
 
 
