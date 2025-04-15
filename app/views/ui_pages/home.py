@@ -5,6 +5,7 @@ from app.views.ui_pages.connections import connections
 from app.views.ui_pages.data_explorer import data_explorer
 from app.views.ui_pages.delta_storage import delta_storage
 from app.views.ui_pages.connect_source import connect_source
+from app.views.ui_pages.data_sources import data_sources
 
 logger = get_logger()
 
@@ -35,13 +36,16 @@ async def home() -> None:
             st.session_state.menu_item = "delta_storage"
         if st.button("Data Sources", type="secondary"):
             st.session_state.menu_item = "data_sources"
+        if st.button("Machine Learning", type="secondary"):
+            st.session_state.menu_item = "machine_learning"
 
     # Render the corresponding page based on the selected menu item
     menu_functions = {
         "connections": connections,
         "data_explorer": data_explorer,
         "delta_storage": delta_storage,
-        "connect_source" : connect_source
+        "connect_source" : connect_source,
+        "data_sources" : data_sources
     }
     
     if st.session_state.menu_item in menu_functions:

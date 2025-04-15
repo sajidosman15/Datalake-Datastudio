@@ -35,7 +35,7 @@ async def connections() -> None:
     connections = Connection.list_all()
 
     with st.container():
-        st.markdown(f"""<p class="table-title">My Data Sources</p>""", unsafe_allow_html=True)
+        st.markdown(f"""<p class="table-title">My Data Connections</p>""", unsafe_allow_html=True)
 
         with st.container():
             st.button("Connect Source", on_click=lambda: setattr(st.session_state, "menu_item", "connect_source"))
