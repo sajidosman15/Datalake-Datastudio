@@ -4,19 +4,26 @@ Follow these steps to set up and run the Data Studio application locally:
 
 ## 1. Create a Virtual Environment
 First, create a virtual environment to isolate your project dependencies:
+Make sure Python 12 is installed on your machine. Using command **python --version**
 
 ```bash
 python -m venv .venv
 ```
 
 ## 2. Activate the Virtual Environment
-
+For Windows:
 ```bash
 .\.venv\Scripts\Activate
 ```
 
+For Linux:
+```bash
+source .venv/bin/activate
+```
+
 ## 3. Install Dependencies from Poetry
 Install all required packages for this application using Poetry.
+If you do not have poetry installed, Install it using command **pip install poetry**
 
 ```bash
 poetry install --no-root
