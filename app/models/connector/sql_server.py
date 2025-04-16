@@ -30,7 +30,7 @@ class SQLServer:
         try:
             logger.info(f"Module:SQLServerModels. Started retrieving the table names.")
 
-            conn_str = f"DRIVER={{SQL Server}};SERVER={self.db_url};DATABASE={self.db_name};UID={self.db_username};PWD={self.db_password}"
+            conn_str = f"DRIVER={{SQL Server}};SERVER={self.db_url};DATABASE={self.db_name};UID={self.db_username};PWD={self.db_password};TrustServerCertificate=yes;Encrypt=yes;"
             conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
             cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
