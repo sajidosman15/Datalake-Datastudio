@@ -59,14 +59,7 @@ class Connection:
                 inserted_record = cursor.fetchone()
                 columns = [desc[0] for desc in cursor.description]
                 inserted_record = dict(zip(columns, inserted_record))
-                new_connection = Connection(
-                    id=inserted_record["id"],
-                    connection_name=inserted_record["connection_name"],
-                    source_type=inserted_record["source_type"],
-                    state=inserted_record["state"],
-                    nifi_process_id=inserted_record["nifi_process_id"],
-                    create_date=inserted_record["create_date"]
-                )
+                new_connection = Connection.return_connection(inserted_record)
 
                 conn.commit()
                 logger.info(f"Module:ConnectionModels. Insert into Connection table is successful. Record ID: {new_connection.id}")

@@ -1,3 +1,5 @@
+import os
+import json
 from datetime import datetime
 from structlog import get_logger
 
@@ -39,15 +41,43 @@ def fetch_file_bytes(file_path):
     except Exception as e:
         logger.error(f"Module:HadoopController. Failed to fetch the file {file_path}: {e}")
 
-def fetch_head_from_file(file_path, max_bytes=1024 * 500):  # 500 KB
+def string_to_json(data: str):
+    valid_data = data.rsplit("\\n}", 1)[0] + "}"
+    valid_data = valid_data + '\\n]'
+
+    clean_data = valid_data.replace('{"value":"', "")
+    clean_data = clean_data.replace('\\n', "")
+    clean_data = clean_data.replace('\\', "")
+
+    try:
+        parsed_json = json.loads(clean_data)
+        return json.dumps(parsed_json, indent=2)
+    except json.JSONDecodeError as json_err:
+        logger.warning(f"Module:HadoopController. Partial JSON decode failed: {json_err}")
+        return data
+
+def fetch_head_from_file(file_path, max_bytes=1024 * 500):
     """
-        This function read only 500KB of the file from the Hadoop directory to show the user a sample of that file.
+    Reads up to 500KB of a file from Hadoop storage and returns a preview.
+    - For `.txt` files: returns UTF-8 decoded content.
+    - For `.json` files: attempts to return a valid partial JSON array.
     """
     try:
+        extension = os.path.splitext(file_path)[-1].lower()
+
         with fs.open(file_path) as f:
             raw_data = f.read(max_bytes)
-            decoded_data = raw_data.decode("utf-8", errors="ignore")
-            return decoded_data
+
+            if extension == ".txt":
+                return raw_data.decode("utf-8", errors="ignore")
+
+            elif extension == ".json":
+                decoded_data = raw_data.decode("utf-8", errors="ignore")
+                return string_to_json(decoded_data)
+            
+            else:
+                return raw_data.decode("utf-8", errors="ignore")
+
     except Exception as e:
         logger.error(f"Module:HadoopController. Failed to fetch head of the file {file_path}: {e}")
         return ""

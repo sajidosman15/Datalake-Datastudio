@@ -68,4 +68,7 @@ async def connections() -> None:
                     if middle.button("",icon=":material/cloud_download:", key=f"load_{record.id}", help="Load To Storage", use_container_width=False):
                         middle.markdown("You clicked the emoji button.")
                     if right.button("",icon=":material/delete:", key=f"delete_{record.id}", help="Delete", use_container_width=False):
-                        delete_popup(record)
+                        if record.state != "Loading" and record.state != "Storing":
+                            delete_popup(record)
+                        else:
+                            st.toast("❌ Cannot delete a connection while it's Loading or Storing.")

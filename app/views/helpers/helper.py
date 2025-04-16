@@ -7,3 +7,7 @@ def get_base64_image(image_path):
 def get_gif_image(image_path):
     image = f"data:image/gif;base64,{get_base64_image(image_path)}"
     return image
+
+def clean_text(text: str) -> str:
+    text = text.strip()
+    return text

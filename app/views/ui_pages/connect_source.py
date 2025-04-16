@@ -4,6 +4,8 @@ from app.controllers.nifi import instantiate_flow
 from app.models.connection import Connection
 from app.models.connector.sql_server import SQLServer
 
+from app.views.helpers.helper import clean_text
+
 @st.dialog("Select the Tables You Want to Load")
 def open_sql_server_popup(connection:Connection, sql_server:SQLServer):
     tables = sql_server.get_table_names()
@@ -55,8 +57,8 @@ async def connect_source() -> None:
     # Trigger flow deployment
     if deploy_button:
         if source_type == "Microsoft SQL Server" and source_name and db_url and db_name and db_username and db_password:
-            connection = Connection(connection_name=source_name, source_type=source_type)
-            sql_server = SQLServer(db_url=db_url, db_name=db_name, db_username=db_username, db_password=db_password)
+            connection = Connection(connection_name=clean_text(source_name), source_type=clean_text(source_type))
+            sql_server = SQLServer(db_url=clean_text(db_url), db_name=clean_text(db_name), db_username=clean_text(db_username), db_password=clean_text(db_password))
             open_sql_server_popup(connection, sql_server)
         else:
             st.toast("⛔ Please fill all required fields.")
