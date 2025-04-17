@@ -25,3 +25,12 @@ def get_nifi_env():
         "username": os.getenv("NIFI_USERNAME"),
         "password": os.getenv("NIFI_PASSWORD"),
     }
+
+
+def get_clickhouse_env():
+    return {
+        "host": os.getenv("CLICKHOUSE_HOST"),
+        "port": os.getenv("CLICKHOUSE_PORT"),
+        "username": os.getenv("CLICKHOUSE_USERNAME"),
+        "password": os.getenv("CLICKHOUSE_PASSWORD"),
+    }

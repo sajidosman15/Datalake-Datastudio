@@ -42,7 +42,13 @@ Install PostgreSQL on your local machine and, if necessary, create the user and 
 python scripts/database.py
 ```
 
-## 4. Run the Data Studio App
+## 6. Run the API Service
+
+```bash
+python app/api.py
+```
+
+## 7. Run the Data Studio App
 
 ```bash
 python app/main.py
