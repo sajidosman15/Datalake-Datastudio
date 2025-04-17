@@ -2,7 +2,9 @@ import streamlit as st
 import webbrowser
 from structlog import get_logger
 
-from app.models.connection import Connection
+from app.config import get_api_server
+
+from app.models.dataset import Dataset
 
 logger = get_logger()
 
@@ -12,7 +14,7 @@ async def data_sources() -> None:
 
     st.title("Data Sources")
 
-    connections = Connection.list_all()
+    datasets = Dataset.list_all()
 
     with st.container():
         st.markdown(f"""<p class="table-title">My Data Sources</p>""", unsafe_allow_html=True)
@@ -22,14 +24,14 @@ async def data_sources() -> None:
             st.button("SQL Query Tool", key="sql_query_tool_button")
                 
         with st.container():
-            for record in connections:
+            for record in datasets:
                 col1, col2, col3, col4 = st.columns([3, 4, 3, 2])
                 
                 with col1:
-                    st.markdown(f"{record.connection_name}")
+                    st.markdown(f"{record.dataset_name}")
 
                 with col2:
-                    link = "https://chatgpt.com/c/67fe2de9-c4a0-8000-8a00-57029dee729f"
+                    link = f"{get_api_server()}/api/{record.api_version}/data/{record.dataset_owner}/{record.table_name}"
                     st.text_input("Source URL", value=link, key=f"source_url_{record.id}", disabled=True, label_visibility="hidden")
                 
                 with col3:
@@ -43,6 +45,5 @@ async def data_sources() -> None:
                         btn2.markdown("You clicked the emoji button.")
                     if btn3.button("",icon=":material/edit_document:", key=f"edit_document_{record.id}", help="Update BI Link", use_container_width=False):
                         btn3.markdown("You clicked the emoji button.")
-                    if btn4.button("",icon=":material/bar_chart_4_bars:", key=f"bar_chart_4_bars_{record.id}", help="Power BI", use_container_width=False):
-                        target_url = "https://app.powerbi.com/view?r=eyJrIjoiNjdiZjJkZDktOGQ2ZS00NjcwLTg1MmUtYTk0YzIwYzRiZGI4IiwidCI6IjM3ZWYzZDE5LTE2NTEtNDQ1Mi1iNzYxLWRjMjQxNGJmMDQxNiIsImMiOjh9"
-                        webbrowser.open(target_url)
+                    if btn4.button("",icon=":material/bar_chart_4_bars:", key=f"bar_chart_4_bars_{record.id}", help="Power BI", disabled= False if record.dashboard_url != "" else True, use_container_width=False):
+                        webbrowser.open(record.dashboard_url)

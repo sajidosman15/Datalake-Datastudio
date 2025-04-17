@@ -92,8 +92,49 @@ def create_connections_table():
             conn.close()
         logger.error(f"Failed to create table 'Connections' : {e}")
 
+def create_datasets_table():
+    env = get_db_env()
+    
+    try:
+        # Connect to the specified database
+        conn = psycopg2.connect(
+            dbname=env["dbname"], host=env["host"], user=env["user"], 
+            password=env["password"], port=env["port"]
+        )
+        conn.autocommit = True
+        cur = conn.cursor()
+        
+        # Create the Datasets table
+        create_table_query = '''
+        CREATE TABLE IF NOT EXISTS Datasets (
+            id SERIAL PRIMARY KEY,
+            dataset_name VARCHAR(255) NOT NULL,
+            api_version VARCHAR(100) NOT NULL,
+            dataset_owner VARCHAR(100) NOT NULL,
+            visibility VARCHAR(50) NOT NULL,
+            table_name VARCHAR(255) NOT NULL,
+            dashboard_url VARCHAR(1000),
+            connection_id INT NOT NULL,
+            FOREIGN KEY (connection_id) REFERENCES Connections(id),
+            create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        '''
+        
+        cur.execute(create_table_query)
+        logger.info("Table 'Datasets' created successfully.")
+        
+        cur.close()
+        conn.close()
+    except Exception as e:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+        logger.error(f"Failed to create table 'Datasets' : {e}")
+
 if __name__ == "__main__":
     database = check_and_create_database()
 
     if database:
         create_connections_table()
+        create_datasets_table()

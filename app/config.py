@@ -34,3 +34,6 @@ def get_clickhouse_env():
         "username": os.getenv("CLICKHOUSE_USERNAME"),
         "password": os.getenv("CLICKHOUSE_PASSWORD"),
     }
+
+def get_api_server():
+    return f"{os.getenv('API_SERVER_URL')}:{os.getenv('API_SERVER_PORT')}"
