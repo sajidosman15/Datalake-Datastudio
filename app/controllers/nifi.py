@@ -7,6 +7,7 @@ from structlog import get_logger
 
 from app.config import get_nifi_env
 from app.models.connection import Connection
+from app.controllers.kafka import store_data_kafka_to_hadoop
 
 logger = get_logger()
 nifi_env = get_nifi_env()
@@ -439,17 +440,23 @@ def monitor_and_cleanup_process(headers, process_group_id, connection:Connection
                                 # Update database record
                                 connection.update_state("Loaded")
                                 logger.info(f"Module:NiFiController. NiFi flow {process_group_id} completed and cleaned up.")
+                                store_data_kafka_to_hadoop(connection)
                                 break
                             else:
+                                connection.update_state("Failed")
                                 break
                         else:
+                            connection.update_state("Failed")
                             break
                     else:
+                        connection.update_state("Failed")
                         break
                 else:
+                    connection.update_state("Failed")
                     break
             time.sleep(10)  # Polling interval
     except Exception as e:
+        connection.update_state("Failed")
         logger.error(f"Module:NiFiController. Error in background cleanup task: {str(e)}")
 
 def remove_failed_template(headers, process_group_id, stage):
@@ -497,25 +504,32 @@ def instantiate_flow(connection:Connection):
                                 ).start()
                                 return True
                             else:
+                                connection.update_state("Failed")
                                 remove_failed_template(headers, process_group_id, stage=3)
                                 return False
                         else:
+                            connection.update_state("Failed")
                             remove_failed_template(headers, process_group_id, stage=2)
                             return False
                     else:
+                        connection.update_state("Failed")
                         logger.error(f"Failed to start flow because all controller is not enabled.")
                         remove_failed_template(headers, process_group_id, stage=2)
                         return False
                 else:
+                    connection.update_state("Failed")
                     remove_failed_template(headers, process_group_id, stage=1)
                     return False
             else:
+                connection.update_state("Failed")
                 remove_failed_template(headers, process_group_id, stage=1)
                 return False
         else:
+            connection.update_state("Failed")
             remove_failed_template(headers, process_group_id, stage=1)
             return False
     else:
+        connection.update_state("Failed")
         remove_failed_template(headers, process_group_id, stage=1)
         return False
                     

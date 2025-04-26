@@ -37,3 +37,8 @@ def get_clickhouse_env():
 
 def get_api_server():
     return f"{os.getenv('API_SERVER_URL')}:{os.getenv('API_SERVER_PORT')}"
+
+
+def get_kafka_server():
+    server = f"{os.getenv('KAFKA_HOST')}:{os.getenv('KAFKA_PORT')}"
+    return server

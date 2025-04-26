@@ -27,6 +27,7 @@ class Connection:
                     connection_name = record["connection_name"],
                     source_type = record["source_type"],
                     state = record["state"],
+                    connection_properties = record["connection_properties"],
                     nifi_process_id = record["nifi_process_id"],
                     create_date = record["create_date"].strftime("%d %b %Y, %H:%M %p")
                 )
@@ -47,7 +48,7 @@ class Connection:
                     INSERT INTO Connections (
                         connection_name, source_type, connection_properties, state, nifi_process_id
                     ) VALUES (%s, %s, %s, %s, %s)
-                    RETURNING id, connection_name, source_type, state, nifi_process_id, create_date;
+                    RETURNING id, connection_name, source_type, state, connection_properties, nifi_process_id, create_date;
                 """
                 cursor.execute(insert_query, (
                     self.connection_name,

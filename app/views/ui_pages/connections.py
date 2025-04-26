@@ -2,8 +2,8 @@ import streamlit as st
 from structlog import get_logger
 
 from app.views.helpers.helper import get_gif_image
-
 from app.models.connection import Connection
+from app.controllers.kafka import run_kafka_to_hadoop_thread
 
 logger = get_logger()
 
@@ -66,7 +66,14 @@ async def connections() -> None:
                     if left.button("",icon=":material/refresh:", key=f"refresh_{record.id}", help="Refresh", use_container_width=False):
                         left.markdown("You clicked the plain button.")
                     if middle.button("",icon=":material/cloud_download:", key=f"load_{record.id}", help="Load To Storage", use_container_width=False):
-                        middle.markdown("You clicked the emoji button.")
+                        if record.state != "Loading" and record.state != "Storing":
+                            started = run_kafka_to_hadoop_thread(record)
+                            if started:
+                                st.toast("✅ The pipeline started successfully.")
+                            else:
+                                st.toast("❌ Failed to start the pipeline.") 
+                        else:
+                            st.toast("❌ Storing process is already running.")
                     if right.button("",icon=":material/delete:", key=f"delete_{record.id}", help="Delete", use_container_width=False):
                         if record.state != "Loading" and record.state != "Storing":
                             delete_popup(record)

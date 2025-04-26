@@ -42,7 +42,12 @@ def fetch_file_bytes(file_path):
         logger.error(f"Module:HadoopController. Failed to fetch the file {file_path}: {e}")
 
 def string_to_json(data: str):
-    valid_data = data.rsplit("\\n}", 1)[0] + "}"
+    # If data contains full block of data
+    if ']"}' in data:
+        valid_data = data.split(']"}', 1)[0]
+    else:
+        # If data is partial block
+        valid_data = data.rsplit("\\n}", 1)[0] + "}"
     valid_data = valid_data + '\\n]'
 
     clean_data = valid_data.replace('{"value":"', "")
