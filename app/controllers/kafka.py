@@ -54,34 +54,35 @@ def get_kafka_stream(topic: str, spark: SparkSession):
         kafkaParams = {
             "kafka.bootstrap.servers": get_kafka_server(),
             "subscribe": topic,
-            "startingOffsets": "earliest"
+            "startingOffsets": "earliest",
+            "failOnDataLoss": "false"
         }
         # Create a Kafka DataFrame
         kafkaStream = spark.readStream \
             .format("kafka") \
             .options(**kafkaParams) \
-            .load()
-        # Convert the value column from bytes to string
-        kafkaStream = kafkaStream.selectExpr("CAST(value AS STRING)")
+            .load() \
+            .selectExpr("CAST(value AS STRING)")
+
         logger.info(f"Module:KafkaController. Finished getting stream from kafka topic: {topic}")
         return kafkaStream
     except Exception as e:
         logger.error(f"Module:KafkaController. Failed to get stream from kafka topic: {topic}. {str(e)}")
         return False
 
-def store_kafka_stream(kafkaStream: DataFrame, topic_prefix: str, topic: str):
+def store_kafka_stream(kafkaStream: DataFrame, topic_prefix: str, dataset_name: str):
     '''
     This function store the Kafka data stream into Hadoop Distributed File System (HDFS)
     '''
     try:
-        logger.info(f"Module:KafkaController. Start storring stream in Hadoop topic: {topic}")
+        logger.info(f"Module:KafkaController. Start storring stream in Hadoop dataset: {dataset_name}")
         def store_in_hadoop(batch_df: DataFrame, batch_id: int):
             if not batch_df.isEmpty():
                 # Convert each row to JSON string
                 records = batch_df.toJSON().collect()
                 content = "\n".join(records)
                 # Generate unique file path for this batch
-                file_path = f"/DataLake/{topic_prefix}/{topic}/{topic}.json"
+                file_path = f"/DataLake/{topic_prefix}/{dataset_name}/{dataset_name}.json"
                 # Write to HDFS using pyhdfs
                 fs = get_hdfs_connection()
                 if fs.exists(file_path):
@@ -93,10 +94,10 @@ def store_kafka_stream(kafkaStream: DataFrame, topic_prefix: str, topic: str):
             .foreachBatch(store_in_hadoop) \
             .start()
         query.awaitTermination()
-        logger.info(f"Module:KafkaController. Finished storring stream in Hadoop topic: {topic}")
+        logger.info(f"Module:KafkaController. Finished storring stream in Hadoop dataset: {dataset_name}")
         return True
     except Exception as e:
-        logger.error(f"Module:KafkaController. Failed storring stream in Hadoop topic: {topic}. {str(e)}")
+        logger.error(f"Module:KafkaController. Failed storring stream in Hadoop dataset: {dataset_name}. {str(e)}")
         return False
     finally:
         if 'query' in locals() and query:
@@ -120,7 +121,7 @@ def store_data_kafka_to_hadoop(connection: Connection):
             topic = f"{topic_prefix}{dataset_name}"
             kafkaStream = get_kafka_stream(topic, spark)
             if kafkaStream:
-                stored = store_kafka_stream(kafkaStream, topic_prefix, topic)
+                stored = store_kafka_stream(kafkaStream, topic_prefix, dataset_name)
                 if not stored:
                     successfully_stored = False
             else:

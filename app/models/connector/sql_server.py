@@ -30,20 +30,20 @@ class SQLServer:
         try:
             logger.info(f"Module:SQLServerModels. Started retrieving the table names.")
 
-            conn_str = f"DRIVER={{SQL Server}};SERVER={self.db_url};DATABASE={self.db_name};UID={self.db_username};PWD={self.db_password};TrustServerCertificate=yes;Encrypt=yes;"
+            conn_str = f"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={self.db_url};DATABASE={self.db_name};UID={self.db_username};PWD={self.db_password};TrustServerCertificate=yes;Encrypt=yes;"
             conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
             cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
             tables = [row[0] for row in cursor.fetchall()]
-            conn.close()
 
             logger.info(f"Module:SQLServerModels. Successfully retrieved the table names.")
             return tables
         except Exception as e:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
             logger.error(f"Module:SQLServerModels. Failed to retrieve the table names: {e}")
             return False
+        finally:
+            if 'cursor' in locals() and cursor:
+                cursor.close()
+            if 'conn' in locals() and conn:
+                conn.close()
 

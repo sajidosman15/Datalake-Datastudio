@@ -91,7 +91,7 @@ class Connection:
                 select_query = """
                     SELECT 
                         id, connection_name, source_type, state, connection_properties, nifi_process_id, create_date
-                    FROM Connections;
+                    FROM Connections ORDER BY id DESC;
                 """
                 cursor.execute(select_query)
                 rows = cursor.fetchall()

@@ -48,9 +48,9 @@ def check_and_create_database():
             conn.close()
             return True
         except Exception as e:
-            if cur:
+            if 'cur' in locals() and cur:
                 cur.close()
-            if conn:
+            if 'conn' in locals() and conn:
                 conn.close()
             logger.error(f"Error on creating database: {e}")
             return False
@@ -86,9 +86,9 @@ def create_connections_table():
         cur.close()
         conn.close()
     except Exception as e:
-        if cur:
+        if 'cur' in locals() and cur:
             cur.close()
-        if conn:
+        if 'conn' in locals() and conn:
             conn.close()
         logger.error(f"Failed to create table 'Connections' : {e}")
 
@@ -126,9 +126,9 @@ def create_datasets_table():
         cur.close()
         conn.close()
     except Exception as e:
-        if cur:
+        if 'cur' in locals() and cur:
             cur.close()
-        if conn:
+        if 'conn' in locals() and conn:
             conn.close()
         logger.error(f"Failed to create table 'Datasets' : {e}")
 
