@@ -1,12 +1,10 @@
-import psycopg2
 from datetime import datetime, timezone
-from psycopg2.extras import Json
 from typing import Optional, Dict
 
 from dataclasses import dataclass, field
 from structlog import get_logger
 
-from app.config import get_db_env
+from app.config import config
 
 logger = get_logger()
 
@@ -42,12 +40,8 @@ class Dataset:
         Retrieves all records from the Datasets table.
         """
         logger.info("Module:DatasetModels. Started retrieving data from Dataset table.")
-        env = get_db_env()
         try:
-            conn = psycopg2.connect(
-                dbname=env["dbname"], host=env["host"], user=env["user"], 
-                password=env["password"], port=env["port"]
-            )
+            conn = config.database.get_connection()
             with conn.cursor() as cursor:
                 select_query = """
                     SELECT 

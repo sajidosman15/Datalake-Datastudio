@@ -2,7 +2,7 @@ import streamlit as st
 import webbrowser
 from structlog import get_logger
 
-from app.config import get_api_server
+from app.config import config
 
 from app.models.dataset import Dataset
 
@@ -31,7 +31,7 @@ async def data_sources() -> None:
                     st.markdown(f"{record.dataset_name}")
 
                 with col2:
-                    link = f"{get_api_server()}/api/{record.api_version}/data/{record.dataset_owner}/{record.table_name}"
+                    link = f"{config.api_service.get_api_url()}/api/{record.api_version}/data/{record.dataset_owner}/{record.table_name}"
                     st.text_input("Source URL", value=link, key=f"source_url_{record.id}", disabled=True, label_visibility="hidden")
                 
                 with col3:

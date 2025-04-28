@@ -5,7 +5,8 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.streaming import StreamingQuery
 
 from app.models.connection import Connection
-from app.config import get_hdfs_connection, get_kafka_server
+from app.controllers.hadoop import get_hdfs_path
+from app.config import config
 
 logger = get_logger()
 
@@ -14,6 +15,7 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = (
     '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,'
     'org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell'
 )
+os.environ['HADOOP_USER_NAME'] = config.hadoop.user
 
 def run_kafka_to_hadoop_thread(connection: Connection):
     try:
@@ -52,7 +54,7 @@ def get_kafka_stream(topic: str, spark: SparkSession):
     try:
         logger.info(f"Module:KafkaController. Start getting stream from kafka topic: {topic}")
         kafkaParams = {
-            "kafka.bootstrap.servers": get_kafka_server(),
+            "kafka.bootstrap.servers": config.kafka.get_url(),
             "subscribe": topic,
             "startingOffsets": "earliest",
             "failOnDataLoss": "false"
@@ -78,16 +80,17 @@ def store_kafka_stream(kafkaStream: DataFrame, topic_prefix: str, dataset_name: 
         logger.info(f"Module:KafkaController. Start storring stream in Hadoop dataset: {dataset_name}")
         def store_in_hadoop(batch_df: DataFrame, batch_id: int):
             if not batch_df.isEmpty():
-                # Convert each row to JSON string
-                records = batch_df.toJSON().collect()
-                content = "\n".join(records)
-                # Generate unique file path for this batch
-                file_path = f"/DataLake/{topic_prefix}/{dataset_name}/{dataset_name}.json"
-                # Write to HDFS using pyhdfs
-                fs = get_hdfs_connection()
-                if fs.exists(file_path):
-                    fs.delete(file_path)
-                fs.create(file_path, content.encode('utf-8'))
+                # Store the batch in the specified folder
+                folder_path = f"/DataLake/{topic_prefix}/{dataset_name}"
+                hdfs_path = get_hdfs_path(folder_path)
+                batch_df.write.mode("overwrite").json(hdfs_path)
+
+                # Rename the randomly generated file name to actual file name.
+                dfs = config.hadoop.get_connection()
+                old_file_name = f"{folder_path}/{dfs.list_status(folder_path)[1]["pathSuffix"]}"
+                new_file_name = f"{folder_path}/{dataset_name}.json"
+                dfs.rename(old_file_name,new_file_name)
+
             query.stop()
 
         query: StreamingQuery = kafkaStream.writeStream \
@@ -110,6 +113,7 @@ def store_data_kafka_to_hadoop(connection: Connection):
     '''
     try:
         logger.info(f"Module:KafkaController. Start transferring data Kafka to Hadoop. Process id:{connection.nifi_process_id}")
+        successfully_loaded = True
         successfully_stored = True
         connection.update_state("Storing")
         dataset_list = get_dataset_list(connection)
@@ -125,12 +129,15 @@ def store_data_kafka_to_hadoop(connection: Connection):
                 if not stored:
                     successfully_stored = False
             else:
-                successfully_stored = False
+                successfully_loaded = False
             
         if successfully_stored:
             connection.update_state("Stored")
+        elif successfully_loaded:
+            connection.update_state("Loaded")
         else:
             connection.update_state("Failed")
+            
         logger.info(f"Module:KafkaController. Finished transferring data Kafka to Hadoop. Process id:{connection.nifi_process_id}")
     except Exception as e:
         connection.update_state("Failed")

@@ -3,19 +3,20 @@ import json
 from datetime import datetime
 from structlog import get_logger
 
-from app. config import get_hdfs_connection
+from app.config import config
 
 logger = get_logger()
 
-# Create Hadoop Connection
-fs = get_hdfs_connection()
+def get_hdfs_path(folder_path: str):
+    return f"hdfs://{config.hadoop.host}:{config.hadoop.namenode_port}{folder_path}"
 
 def get_list_hdfs_directory(path):
     """
         This function retrieves a list of files and folders along with their metadata from a Hadoop directory.
     """
     try:
-        files = fs.list_status(path)
+        dfs = config.hadoop.get_connection()
+        files = dfs.list_status(path)
         return sorted(
             [
                 {
@@ -36,7 +37,8 @@ def fetch_file_bytes(file_path):
         This function read the whole file from the Hadoop directory.
     """
     try:
-        with fs.open(file_path) as f:
+        dfs = config.hadoop.get_connection()
+        with dfs.open(file_path) as f:
             return f.read()
     except Exception as e:
         logger.error(f"Module:HadoopController. Failed to fetch the file {file_path}: {e}")
@@ -69,8 +71,8 @@ def fetch_head_from_file(file_path, max_bytes=1024 * 500):
     """
     try:
         extension = os.path.splitext(file_path)[-1].lower()
-
-        with fs.open(file_path) as f:
+        dfs = config.hadoop.get_connection()
+        with dfs.open(file_path) as f:
             raw_data = f.read(max_bytes)
 
             if extension == ".txt":

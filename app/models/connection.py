@@ -1,4 +1,3 @@
-import psycopg2
 from datetime import datetime, timezone
 from psycopg2.extras import Json
 from typing import Optional, Dict
@@ -6,7 +5,7 @@ from typing import Optional, Dict
 from dataclasses import dataclass, field
 from structlog import get_logger
 
-from app.config import get_db_env
+from app.config import config
 
 logger = get_logger()
 
@@ -37,12 +36,8 @@ class Connection:
         Inserts data into the Connections table.
         """
         logger.info(f"Module:ConnectionModels. Started inserting data into Connection table.")
-        env = get_db_env()
         try:
-            conn = psycopg2.connect(
-                dbname=env["dbname"], host=env["host"], user=env["user"], 
-                password=env["password"], port=env["port"]
-            )
+            conn = config.database.get_connection()
             with conn.cursor() as cursor:
                 insert_query = """
                     INSERT INTO Connections (
@@ -81,12 +76,8 @@ class Connection:
         Retrieves all records from the Connections table.
         """
         logger.info("Module:ConnectionModels. Started retrieving data from Connection table.")
-        env = get_db_env()
         try:
-            conn = psycopg2.connect(
-                dbname=env["dbname"], host=env["host"], user=env["user"], 
-                password=env["password"], port=env["port"]
-            )
+            conn = config.database.get_connection()
             with conn.cursor() as cursor:
                 select_query = """
                     SELECT 
@@ -125,12 +116,8 @@ class Connection:
         - bool: True if the update was successful, False otherwise
         """
         logger.info(f"Module:ConnectionModels. Attempting to update state for Connection ID {self.id} to '{new_state}'.")
-        env = get_db_env()
         try:
-            conn = psycopg2.connect(
-                dbname=env["dbname"], host=env["host"], user=env["user"], 
-                password=env["password"], port=env["port"]
-            )
+            conn = config.database.get_connection()
             with conn.cursor() as cursor:
                 update_query = """
                     UPDATE Connections
@@ -163,12 +150,8 @@ class Connection:
         - bool: True if the deletion was successful, False otherwise
         """
         logger.info(f"Module:ConnectionModels. Attempting to delete Connection ID {self.id}.")
-        env = get_db_env()
         try:
-            conn = psycopg2.connect(
-                dbname=env["dbname"], host=env["host"], user=env["user"], 
-                password=env["password"], port=env["port"]
-            )
+            conn = config.database.get_connection()
             with conn.cursor() as cursor:
                 delete_query = """
                     DELETE FROM Connections

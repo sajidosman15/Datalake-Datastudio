@@ -5,22 +5,21 @@ import threading
 
 from structlog import get_logger
 
-from app.config import get_nifi_env
+from app.config import config
 from app.models.connection import Connection
 from app.controllers.kafka import store_data_kafka_to_hadoop
 
 logger = get_logger()
-nifi_env = get_nifi_env()
 
 def get_nifi_token():
     """
         This function generates an access token for communicating with NiFi.
     """
     logger.info(f"Module:NiFiController. Generating NiFi Access Token.")
-    TOKEN_URL = f"{nifi_env["base_url"]}/access/token"
+    TOKEN_URL = f"{config.nifi.get_api_url()}/access/token"
     data = {
-        "username": nifi_env["username"],
-        "password": nifi_env["password"]
+        "username": config.nifi.username,
+        "password": config.nifi.password
     }
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -56,7 +55,7 @@ def get_template_payload_for_source(source_type):
         template_payload = {
             "originX": 0.0,
             "originY": 0.0,
-            "templateId": nifi_env["sql_template_id"]
+            "templateId": config.nifi.sql_template_id
         }
     return template_payload
 
@@ -70,7 +69,7 @@ def create_template_instance(headers, source_type):
         template_payload = get_template_payload_for_source(source_type)
 
         # Creating the template in root process group
-        response = requests.post(f"{nifi_env["base_url"]}/process-groups/{nifi_env["root"]}/template-instance", 
+        response = requests.post(f"{config.nifi.get_api_url()}/process-groups/{config.nifi.root}/template-instance", 
                                 json=template_payload, headers=headers, verify=False)
 
         if response.status_code == 201:
@@ -91,7 +90,7 @@ def get_payload_from_variable_registry(headers, process_group_id):
     """
     logger.info(f"Module:NiFiController. Getting payload from NiFi variable registry.")
     try:
-        var_response = requests.get(f"{nifi_env["base_url"]}/process-groups/{process_group_id}/variable-registry", 
+        var_response = requests.get(f"{config.nifi.get_api_url()}/process-groups/{process_group_id}/variable-registry", 
                                         headers=headers, verify=False)
 
         if var_response.status_code == 200:
@@ -143,7 +142,7 @@ def update_template_variable_registry(headers, process_group_id, update_payload)
     """
     logger.info(f"Module:NiFiController. Updating NiFi template variable registry.")
     try:
-        update_response = requests.put(f"{nifi_env["base_url"]}/process-groups/{process_group_id}/variable-registry", 
+        update_response = requests.put(f"{config.nifi.get_api_url()}/process-groups/{process_group_id}/variable-registry", 
                                                 json=update_payload, headers=headers, verify=False)
 
         if update_response.status_code == 200:
@@ -162,7 +161,7 @@ def get_controller_services_of_template(headers, process_group_id):
     """
     logger.info(f"Module:NiFiController. Getting controller services from NiFi template.")
     try:
-        response = requests.get(f"{nifi_env["base_url"]}/flow/process-groups/{process_group_id}/controller-services", 
+        response = requests.get(f"{config.nifi.get_api_url()}/flow/process-groups/{process_group_id}/controller-services", 
                                 headers=headers, verify=False)
         
         if response.status_code == 200:
@@ -208,7 +207,7 @@ def enable_controller_services_of_template(headers, process_group_id):
                         }
                     }
 
-                    enable_response = requests.put(f"{nifi_env["base_url"]}/controller-services/{service_id}", 
+                    enable_response = requests.put(f"{config.nifi.get_api_url()}/controller-services/{service_id}", 
                                                 json=enable_payload, headers=headers, verify=False)
 
                     if enable_response.status_code == 200:
@@ -233,7 +232,7 @@ def stop_all_processors(headers, process_group_id):
     logger.info(f"Module:NiFiController. Stopping all processors for process group {process_group_id}.")
     try:
         processors_resp = requests.get(
-            f"{nifi_env['base_url']}/process-groups/{process_group_id}/processors",
+            f"{config.nifi.get_api_url()}/process-groups/{process_group_id}/processors",
             headers=headers, verify=False
         )
 
@@ -258,7 +257,7 @@ def stop_all_processors(headers, process_group_id):
                 }
 
                 stop_resp = requests.put(
-                    f"{nifi_env['base_url']}/processors/{proc_id}",
+                    f"{config.nifi.get_api_url()}/processors/{proc_id}",
                     headers=headers, json=stop_payload, verify=False
                 )
 
@@ -293,7 +292,7 @@ def stop_all_services(headers, process_group_id):
             }
 
             update_response = requests.put(
-                f"{nifi_env['base_url']}/controller-services/{service_id}",
+                f"{config.nifi.get_api_url()}/controller-services/{service_id}",
                 json=body, headers=headers, verify=False
             )
 
@@ -315,7 +314,7 @@ def empty_all_queues(headers, process_group_id):
     logger.info(f"Module:NiFiController. Emptying all queues for process group {process_group_id}.")
     try:
         connections_response = requests.get(
-            f"{nifi_env['base_url']}/process-groups/{process_group_id}/connections",
+            f"{config.nifi.get_api_url()}/process-groups/{process_group_id}/connections",
             headers=headers, verify=False
         )
 
@@ -327,7 +326,7 @@ def empty_all_queues(headers, process_group_id):
         for conn in connections:
             conn_id = conn['id']
             drop_request = requests.post(
-                f"{nifi_env['base_url']}/flowfile-queues/{conn_id}/drop-requests",
+                f"{config.nifi.get_api_url()}/flowfile-queues/{conn_id}/drop-requests",
                 headers=headers, verify=False
             )
 
@@ -350,7 +349,7 @@ def delete_process_group(headers, process_group_id):
     try:
         # Fetch current revision/version
         get_response = requests.get(
-            f"{nifi_env['base_url']}/process-groups/{process_group_id}",
+            f"{config.nifi.get_api_url()}/process-groups/{process_group_id}",
             headers=headers, verify=False
         )
 
@@ -361,7 +360,7 @@ def delete_process_group(headers, process_group_id):
         revision = get_response.json()['revision']
 
         delete_response = requests.delete(
-            f"{nifi_env['base_url']}/process-groups/{process_group_id}",
+            f"{config.nifi.get_api_url()}/process-groups/{process_group_id}",
             params={"version": revision['version']},
             headers=headers, verify=False
         )
@@ -384,7 +383,7 @@ def is_ingestion_complete(headers, process_group_id):
     logger.info(f"Module:NiFiController. Checking if ingestion is complete for process group {process_group_id}.")
     try:
         status_resp = requests.get(
-            f"{nifi_env['base_url']}/flow/process-groups/{process_group_id}/status",
+            f"{config.nifi.get_api_url()}/flow/process-groups/{process_group_id}/status",
             headers=headers, verify=False
         )
 
@@ -412,7 +411,7 @@ def start_the_process(headers, process_group_id):
     logger.info(f"Module:NiFiController. Starting the NiFi process.")
     try:
         start_payload = {"id": process_group_id, "state": "RUNNING"}
-        start_response = requests.put(f"{nifi_env["base_url"]}/flow/process-groups/{process_group_id}", 
+        start_response = requests.put(f"{config.nifi.get_api_url()}/flow/process-groups/{process_group_id}", 
                                     json=start_payload, headers=headers, verify=False)
         
         if start_response.status_code == 200:
